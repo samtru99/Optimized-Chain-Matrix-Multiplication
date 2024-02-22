@@ -2,18 +2,26 @@
 #include <string.h>
 #include "stdlib.h"
 #include <iostream>
+#include <vector>
+struct Node
+{
+    char* seq;
+    Node left;
+    Node right;
+    int val;
+};
 
-
-
-class Node
+class Sequence
 {
     private:
-        char* seq;
-        Node* left;
-        Node* right;
+        Node root;
+        std::vector<std::vector<int>> s_table;
+        std::vector<int> matrix_sequence;
     public:
-        Node();
-        void sequence();
+        Sequence(std::vector<std::vector<int>> s_table,std::vector<int> matrix_sequence);
+        Node init_sequence(int i, int j);
+        
+        //void find_sequence();
 };
 
 #endif
