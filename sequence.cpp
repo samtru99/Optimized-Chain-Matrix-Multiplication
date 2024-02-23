@@ -51,5 +51,25 @@ Node* Sequence::init_sequence(int i, int j)
 
 void Sequence::print_sequence(Node* n)
 {
-    return;
+    if(n == nullptr)
+    {
+        return;
+    }
+    if(n->left == nullptr && n->right == nullptr)
+    {
+        std::cout << n->seq << " ";
+    }
+    
+    if(n->left)
+    {
+        std::cout << "(" << " ";
+        print_sequence(n->left);
+        std::cout << ")" << " ";
+    }
+    if(n->right)
+    {
+        std::cout << "(" << " ";
+        print_sequence(n->right);
+        std::cout << ")" << " ";
+    }
 }
