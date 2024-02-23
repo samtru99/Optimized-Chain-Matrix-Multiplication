@@ -34,10 +34,11 @@ Node* Sequence::init_sequence(int i, int j)
         n->left = nullptr;
         n->right = nullptr;
         n->seq = static_cast<char*>(malloc(2 * sizeof(char)));
-        n->seq[0] = '0' + i + '\0';
+        n->seq[0] = '0' + i;
+        n->seq[1] = '\0';
         return n;
     }
-    int sub_sequence = s_table[i][j-1];
+    int sub_sequence = s_table[i-1][j-1];
     n->seq = static_cast<char*>(malloc((j-i+1) * sizeof(char)));
     for(int x = 0; x <= (j-i); x++)
     {
