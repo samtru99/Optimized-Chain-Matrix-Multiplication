@@ -114,8 +114,23 @@ void Sequence::printMatrix(matrix *m)
 }
 
 
-void Sequence::compute(Node* n)
+matrix* Sequence::compute(Node* n)
 {
     std::cout << "in the function" << std::endl;
-    printMatrix(str_matrix_dict["3"]);    
+    /*
+        Solo
+    */
+    if(n->left == nullptr && n->right == nullptr && n->seq[2] != '\0') 
+    {
+        return str_matrix_dict[std::to_string(n->seq[0])];
+    }
+    /*
+        Two pairs
+    */
+    if(n->left == nullptr && n->right == nullptr && n->seq[2] == '\0')
+    {
+        matrix* matrix_A = str_matrix_dict[std::to_string(n->seq[0])];
+        matrix* matrix_B = str_matrix_dict[std::to_string(n->seq[1])];
+        
+    }     
 }
