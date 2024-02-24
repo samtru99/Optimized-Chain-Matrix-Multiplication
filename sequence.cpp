@@ -1,6 +1,6 @@
 #include "stdlib.h"
 #include "sequence.h"
-
+#include <iostream>
 
 Sequence::Sequence(std::vector<std::vector<int>> temp_table) : s_table(temp_table)
 {
@@ -72,5 +72,39 @@ void Sequence::print_sequence(Node* n)
         std::cout << "(" << " ";
         print_sequence(n->right);
         std::cout << ")" << " ";
+    }
+}
+
+void Sequence::setvalues(matrix *m, int value)
+{
+    int rows, cols;
+    std::tie(rows, cols) = m->dimension;
+
+    m->values.resize(rows);
+    for (int i = 0; i < rows; ++i) 
+    {
+        m->values[i].resize(cols);
+    }
+
+    for(int i = 0; i < rows; i++)
+    {
+        for(int j = 0; j < cols; j++)
+        {
+            m->values[i][j] = value;
+        }
+    }
+}
+
+void Sequence::printMatrix(matrix m)
+{
+    int rows, cols;
+    std::tie(rows, cols) = m.dimension;
+    for(int i = 0; i < rows; i++)
+    {
+        for(int j = 0; j < cols; j++)
+        {
+            std::cout << m.values[i][j] << " ";
+        }
+        std::cout << std::endl;
     }
 }
