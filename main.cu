@@ -9,10 +9,6 @@
 #include <string.h>
 #include "sequence.h"
 
-struct matrix
-{
-    std::tuple<int, int> dimension;
-};
 
 
 struct pair_hash 
@@ -98,33 +94,36 @@ void init_dp(std::vector<std::vector<int>> *s_table, std::vector<matrix> list_ma
 
 int main()
 {
-    matrix A1;
-    matrix A2;
-    matrix A3;
-    matrix A4;
-    matrix A5;
+    /*
+        Generate Matrices
+    */
+    matrix *A1 = new matrix;
+    matrix *A2 = new matrix;
+    matrix *A3 = new matrix;
+    matrix *A4 = new matrix;
+    matrix *A5 = new matrix;
     
-   
-    A1.dimension = std::make_tuple(4,10);
-    A2.dimension = std::make_tuple(10,3);
-    A3.dimension = std::make_tuple(3,12);
-    A4.dimension = std::make_tuple(12,20);
-    A5.dimension = std::make_tuple(20,7);
+    A1->dimension = std::make_tuple(4,10);
+    A2->dimension = std::make_tuple(10,3);
+    A3->dimension = std::make_tuple(3,12);
+    A4->dimension = std::make_tuple(12,20);
+    A5->dimension = std::make_tuple(20,7);
 
-   
-   /*
-   A1.dimension = std::make_pair(5,4);
-   A2.dimension = std::make_pair(4,6);
-   A3.dimension = std::make_pair(6,2);
-   A4.dimension = std::make_pair(2,7);
-   */
+
+
+    std::unordered_map<std::string, matrix*> dict;
+    dict["1"] = A1;
+    dict["2"] = A2;
+    dict["3"] = A3;
+    dict["4"] = A4;
+    dict["5"] = A5;
 
     std::vector<matrix> list_matrixes;
-    list_matrixes.push_back(A1);
-    list_matrixes.push_back(A2);
-    list_matrixes.push_back(A3);
-    list_matrixes.push_back(A4);
-    list_matrixes.push_back(A5);
+    list_matrixes.push_back(*A1);
+    list_matrixes.push_back(*A2);
+    list_matrixes.push_back(*A3);
+    list_matrixes.push_back(*A4);
+    list_matrixes.push_back(*A5);
 
 
     /*
@@ -145,6 +144,8 @@ int main()
     init_dp(&s_table, list_matrixes);
 
     //Print S-Table for debugging
+    
+    
     std::cout << "S TABLE: " << std::endl;
     for(int i = 0; i < s_table.size(); i++)
     {
@@ -156,13 +157,28 @@ int main()
     }
     
     std::cout << "beginning the sequence " << std::endl;
-    Sequence seq(s_table);
+    Sequence seq(s_table, dict);
+
+    seq.setvalues(A1, 1);
+    seq.setvalues(A2, 2);
+    seq.setvalues(A3, 3);
+    seq.setvalues(A4, 4);
+    seq.setvalues(A5, 5);
     Node* root = new Node();
+    root = seq.init_sequence(1, list_matrixes.size());
+    
+    
+    
+    //seq.printMatrix(A5);
+    
     std::cout << "processing " << std::endl;
     root = seq.init_sequence(1, list_matrixes.size());
     std::cout << "printing " << std::endl;
     std::cout << "(" << " ";
     seq.print_sequence(root);
     std::cout << ")" << " \n";
+    
+    std::cout << "COMPUTING " << std::endl;
+    seq.compute(root);
     return 0;
 }

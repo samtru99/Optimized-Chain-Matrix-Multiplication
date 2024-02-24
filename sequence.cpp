@@ -1,8 +1,10 @@
 #include "stdlib.h"
 #include "sequence.h"
 #include <iostream>
-
-Sequence::Sequence(std::vector<std::vector<int>> temp_table) : s_table(temp_table)
+#include <unordered_map>
+Sequence::Sequence(
+    std::vector<std::vector<int>> temp_table,
+    std::unordered_map<std::string,matrix*> &temp_dict) : s_table(temp_table), str_matrix_dict(temp_dict)
 {
     std::cout << "Constructor executed. \n";
 }   
@@ -93,18 +95,27 @@ void Sequence::setvalues(matrix *m, int value)
             m->values[i][j] = value;
         }
     }
+
 }
 
-void Sequence::printMatrix(matrix m)
+void Sequence::printMatrix(matrix *m)
 {
     int rows, cols;
-    std::tie(rows, cols) = m.dimension;
+    std::tie(rows, cols) = m->dimension;
+    std::cout << rows << " " << cols << std::endl;
     for(int i = 0; i < rows; i++)
     {
         for(int j = 0; j < cols; j++)
         {
-            std::cout << m.values[i][j] << " ";
+            std::cout << m->values[i][j] << " ";
         }
         std::cout << std::endl;
     }
+}
+
+
+void Sequence::compute(Node* n)
+{
+    std::cout << "in the function" << std::endl;
+    printMatrix(str_matrix_dict["3"]);    
 }
