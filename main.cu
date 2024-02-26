@@ -53,6 +53,25 @@ int dp(int i, int j, std::vector<int> dimensions, std::vector<std::vector<int>> 
 
 }
 
+void setValues(matrix *x,int value)
+{
+    int row = std::get<0>(x->dimension);
+    int col = std::get<1>(x->dimension);
+    x->values.resize(row);
+    for (int i = 0; i < row; ++i) 
+    {
+        x->values[i].resize(col);
+    }
+    for(int i = 0; i < row; i++)
+    {
+        for(int j = 0; j < col; j++)
+        {
+            x->values[i][j] = value;
+        }
+    }
+}
+
+
 //Perform DP to find the path of least operations
 void init_dp(std::vector<std::vector<int>> *s_table, std::vector<matrix> list_matrixes)
 {
@@ -88,7 +107,7 @@ void init_dp(std::vector<std::vector<int>> *s_table, std::vector<matrix> list_ma
         }
     }
     dp(1,list_matrixes.size(), dimenions, s_table, &seen);
-    std::cout << "MAX is " << seen[{1,list_matrixes.size()}] << std::endl;
+    //std::cout << "MAX is " << seen[{1,list_matrixes.size()}] << std::endl;
 
 }
 
@@ -101,29 +120,43 @@ int main()
     matrix *A2 = new matrix;
     matrix *A3 = new matrix;
     matrix *A4 = new matrix;
-    matrix *A5 = new matrix;
+    //matrix *A5 = new matrix;
     
+    /*
+    //For odd number 
     A1->dimension = std::make_tuple(4,10);
     A2->dimension = std::make_tuple(10,3);
     A3->dimension = std::make_tuple(3,12);
     A4->dimension = std::make_tuple(12,20);
     A5->dimension = std::make_tuple(20,7);
+    */
 
+    //For even number 
+    A1->dimension = std::make_tuple(3,2);
+    A2->dimension = std::make_tuple(2,4);
+    A3->dimension = std::make_tuple(4,2);
+    A4->dimension = std::make_tuple(2,5);
+    setValues(A1, 1);
+    setValues(A2, 2);
+    setValues(A3, 3);
+    setValues(A4, 4);
+    //setValues(A5, 5);
+    
+   
 
-
-    std::unordered_map<std::string, matrix*> dict;
-    dict["1"] = A1;
-    dict["2"] = A2;
-    dict["3"] = A3;
-    dict["4"] = A4;
-    dict["5"] = A5;
+    std::unordered_map<char, matrix*> dict;
+    dict['1'] = A1;
+    dict['2'] = A2;
+    dict['3'] = A3;
+    dict['4'] = A4;
+    //dict['5'] = A5;
 
     std::vector<matrix> list_matrixes;
     list_matrixes.push_back(*A1);
     list_matrixes.push_back(*A2);
     list_matrixes.push_back(*A3);
     list_matrixes.push_back(*A4);
-    list_matrixes.push_back(*A5);
+    //list_matrixes.push_back(*A5);
 
 
     /*
@@ -144,8 +177,7 @@ int main()
     init_dp(&s_table, list_matrixes);
 
     //Print S-Table for debugging
-    
-    
+    /*
     std::cout << "S TABLE: " << std::endl;
     for(int i = 0; i < s_table.size(); i++)
     {
@@ -155,23 +187,12 @@ int main()
         }
         std::cout << std::endl;
     }
-    
-    std::cout << "beginning the sequence " << std::endl;
+    */
     Sequence seq(s_table, dict);
 
-    seq.setvalues(A1, 1);
-    seq.setvalues(A2, 2);
-    seq.setvalues(A3, 3);
-    seq.setvalues(A4, 4);
-    seq.setvalues(A5, 5);
     Node* root = new Node();
     root = seq.init_sequence(1, list_matrixes.size());
-    
-    
-    
-    //seq.printMatrix(A5);
-    
-    std::cout << "processing " << std::endl;
+     
     root = seq.init_sequence(1, list_matrixes.size());
     std::cout << "printing " << std::endl;
     std::cout << "(" << " ";
@@ -179,6 +200,9 @@ int main()
     std::cout << ")" << " \n";
     
     std::cout << "COMPUTING " << std::endl;
-    seq.compute(root);
+    matrix* res = seq.compute(root);
+
+    std::cout << "RES IS " << std::endl;
+    seq.printMatrix(res);
     return 0;
 }

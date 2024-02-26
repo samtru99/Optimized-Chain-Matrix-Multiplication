@@ -25,14 +25,15 @@ class Sequence
     private:
         Node root;
         std::vector<std::vector<int>> s_table;
-        std::unordered_map<std::string,matrix*> str_matrix_dict;
+        std::unordered_map<char,matrix*> str_matrix_dict;
     public:
-        Sequence(std::vector<std::vector<int>> temp_table, std::unordered_map<std::string,matrix*> &str_matrix_dict);
+        Sequence(std::vector<std::vector<int>> temp_table, std::unordered_map<char,matrix*> &str_matrix_dict);
         Node* init_sequence(int i, int j);
         void print_sequence(Node* n);
-        void compute(Node* n);
+        matrix* compute(Node* n);
         void setvalues(matrix *m, int value);
         void printMatrix(matrix *m);
+        void matrix_mult(matrix *a, matrix *b, matrix *c, int x, int y, int z);
 };
 
 #endif

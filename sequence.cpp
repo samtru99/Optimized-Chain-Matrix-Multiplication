@@ -4,9 +4,8 @@
 #include <unordered_map>
 Sequence::Sequence(
     std::vector<std::vector<int>> temp_table,
-    std::unordered_map<std::string,matrix*> &temp_dict) : s_table(temp_table), str_matrix_dict(temp_dict)
+    std::unordered_map<char,matrix*> &temp_dict) : s_table(temp_table), str_matrix_dict(temp_dict)
 {
-    std::cout << "Constructor executed. \n";
 }   
 
 
@@ -102,7 +101,6 @@ void Sequence::printMatrix(matrix *m)
 {
     int rows, cols;
     std::tie(rows, cols) = m->dimension;
-    std::cout << rows << " " << cols << std::endl;
     for(int i = 0; i < rows; i++)
     {
         for(int j = 0; j < cols; j++)
@@ -116,21 +114,66 @@ void Sequence::printMatrix(matrix *m)
 
 matrix* Sequence::compute(Node* n)
 {
-    std::cout << "in the function" << std::endl;
     /*
         Solo
     */
-    if(n->left == nullptr && n->right == nullptr && n->seq[2] != '\0') 
+    if(n->left == nullptr && n->right == nullptr && n->seq[1] == '\0') 
     {
-        return str_matrix_dict[std::to_string(n->seq[0])];
+        return str_matrix_dict[n->seq[0]];
     }
     /*
         Two pairs
     */
     if(n->left == nullptr && n->right == nullptr && n->seq[2] == '\0')
     {
-        matrix* matrix_A = str_matrix_dict[std::to_string(n->seq[0])];
-        matrix* matrix_B = str_matrix_dict[std::to_string(n->seq[1])];
-        
-    }     
+        matrix* matrix_A = str_matrix_dict[n->seq[0]];
+        matrix* matrix_B = str_matrix_dict[n->seq[1]];
+        matrix* matrix_C = new matrix;
+        int m,n,x,y;
+        std::tie(m,n) = matrix_A->dimension;
+        std::tie(x,y) = matrix_B->dimension;
+        matrix_C->dimension = std::make_tuple(m,y);
+        matrix_C->values.resize(m);
+        for (int i = 0; i < m; ++i) 
+        {
+            matrix_C->values[i].resize(y);
+        }
+        int val = matrix_A->values[0][0];
+        matrix_mult(matrix_A,matrix_B,matrix_C,m,y,x);
+        return matrix_C;
+    }
+    else
+    {
+        matrix* left_res = compute(n->left);
+        matrix* right_res = compute(n->right);
+
+        matrix* matrix_C = new matrix;
+        int a,b,c,d;
+        std::tie(a,b) = left_res->dimension;
+        std::tie(c,d) = right_res->dimension;
+        matrix_C->dimension = std::make_tuple(a,d);
+        matrix_C->values.resize(a);
+        for (int i = 0; i < a; ++i) 
+        {
+            matrix_C->values[i].resize(d);
+        }
+        matrix_mult(left_res,right_res,matrix_C,a,d,b);
+        return matrix_C;   
+    }  
+}
+
+
+
+void Sequence::matrix_mult(matrix *a, matrix *b, matrix *c, int x, int y, int z)
+{
+    for(int row = 0; row < x; row++)
+    {
+        for(int col = 0; col < y; col++)
+        {
+            for(int k = 0; k < z; k++)
+            {
+                c->values[row][col] += (a->values[row][k] * b->values[k][col]);
+            }
+        }
+    }
 }
