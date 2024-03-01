@@ -45,6 +45,22 @@ void setValues(matrix *x,int value)
 {
     int row = std::get<0>(x->dimension);
     int col = std::get<1>(x->dimension);
+
+    /*
+    int bytes = row * col * sizeof(int);
+    std::cout << "total = " << row * col << std::endl;
+    x->values = (int*)malloc(bytes);
+    int count = 0;
+    for(int i = 0; i < row; i++)
+    {
+        for(int j = 0; j < col; j++)
+        {
+            count+=1;
+            x->values[i * row + j] = value;
+        }
+    }
+    std::cout << "count = " << count << std::endl;
+    */
     x->values.resize(row);
     for (int i = 0; i < row; ++i) 
     {
@@ -57,7 +73,17 @@ void setValues(matrix *x,int value)
             x->values[i][j] = value;
         }
     }
+    
 }
+
+matrix* new_matrix(int row, int col, int val)
+{
+    matrix *m = (matrix*)malloc(sizeof(matrix));
+    m->dimension = std::make_tuple(row,col);
+    m->ptr = (int*)malloc(row*col*sizeof(int));
+    return m;
+}
+
 
 
 //Perform DP to find the path of least operations

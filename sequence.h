@@ -1,4 +1,5 @@
 #ifndef _SEQUENCE_H
+#define _SEQUENCE_H
 #include <string.h>
 #include "stdlib.h"
 #include <iostream>
@@ -13,11 +14,13 @@ struct Node
     Node* right;
 };
 
-struct matrix
+typedef struct matrix
 {
     std::tuple<int, int> dimension;
     std::vector<std::vector<int>> values;
-};
+    int *ptr;
+    int car;
+}matrix;
 
 
 class Sequence
