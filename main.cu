@@ -11,9 +11,20 @@
 #include "helper_functions.h"
 
 
-__global__ void matrixMult()
+__global__ void matrixMult(int *a, int *b, int *c, int M, int N, int K)
 {
- 
+   int row = blockIdx.y * blockDim.y + threadIdx.y;
+   int col = blockIdx.x * blockDim.x + threadIdx.x;
+
+   if(row < M && col < K)
+   {
+    int temp = 0;
+    for(int i = 0; i < N; i++)
+    {
+        temp += a[row * N + i] * b[i*K+col];
+    }
+    c[row*K+col] = temp;
+   }
 }
 
 int main()
@@ -21,7 +32,7 @@ int main()
     
     //Generate Matrices
 
-    /*
+    
     //Odd Number 
     matrix *a1 = new_matrix(4,10,1);
     matrix *a2 = new_matrix(10,3,2);
@@ -29,28 +40,29 @@ int main()
     matrix *a4 = new_matrix(12,20,4);
     matrix *a5 = new_matrix(20,7,5);
     //print_matrix(a5);
-    */
+    
 
     //Even Number
+    /*
     matrix *a1 = new_matrix(3,2,1);
     matrix *a2 = new_matrix(2,4,2);
     matrix *a3 = new_matrix(4,2,3);
     matrix *a4 = new_matrix(2,5,4);
-  
+    */
     
     std::unordered_map<char, matrix*> dict;
     dict['1'] = a1;
     dict['2'] = a2;
     dict['3'] = a3;
     dict['4'] = a4;
-    //dict['5'] = a5;
+    dict['5'] = a5;
 
     std::vector<matrix> list_matrixes;
     list_matrixes.push_back(*a1);
     list_matrixes.push_back(*a2);
     list_matrixes.push_back(*a3);
     list_matrixes.push_back(*a4);
-    //list_matrixes.push_back(*a5);
+    list_matrixes.push_back(*a5);
     /*
         Create S table and initalize diagonal to zeros
     */
@@ -80,7 +92,6 @@ int main()
     Node* root = new Node();
     root = seq.init_sequence(1, list_matrixes.size());
      
-    root = seq.init_sequence(1, list_matrixes.size());
     std::cout << "printing " << std::endl;
     std::cout << "(" << " ";
     seq.print_sequence(root);
