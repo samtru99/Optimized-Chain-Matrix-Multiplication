@@ -39,7 +39,6 @@ Node* Sequence::init_sequence(int i, int j)
         n->seq[1] = '\0';
         return n;
     }
-    std::cout << "s = " << s_table[i-1][j-1] << std::endl;
     int sub_sequence = s_table[i-1][j-1];
     n->seq = static_cast<char*>(malloc((j-i+1) * sizeof(char)));
     for(int x = 0; x <= (j-i); x++)
@@ -101,13 +100,14 @@ void Sequence::setvalues(matrix *m, int value)
 
 void Sequence::printMatrix(matrix *m)
 {
-    std::cout << "row = " << m->row << std::endl;
-    std::cout << "col = " << m->col << std::endl;
+    //std::cout << "row = " << m->row << std::endl;
+    //std::cout << "col = " << m->col << std::endl;
+    std::cout << "matrix = " << m->row << "," << m->col << std::endl;
     for(int i = 0; i < m->row; i++)
     {
         for(int j = 0; j < m->col;j++)
         {
-            std::cout << m->ptr[i*j] << " ";
+            std::cout << m->ptr[i* m->col + j] << " ";
         }
         std::cout << std::endl;
     }
@@ -129,12 +129,8 @@ matrix* Sequence::compute(Node* n)
         std::cout << "s[0] = " << n->seq[0] << std::endl;   
         std::cout << "s[1] = " << n->seq[1] << std::endl;   
         matrix* matrix_A = str_matrix_dict[n->seq[0]]; 
-        matrix* matrix_B = str_matrix_dict[n->seq[1]]; 
-        if(n->seq[1] == '4') 
-        { 
-            printMatrix(str_matrix_dict[n->seq[1]]); 
-        } 
-        matrix* matrix_C = matrix_mult(*matrix_A,*matrix_B); 
+        matrix* matrix_B = str_matrix_dict[n->seq[1]];  
+        matrix* matrix_C = matrix_mult(*matrix_A,*matrix_B);
         return matrix_C; 
     } 
     else 
@@ -142,7 +138,9 @@ matrix* Sequence::compute(Node* n)
         std::cout << "computing " << n->seq << std::endl; 
         matrix* left_res = compute(n->left); 
         matrix* right_res = compute(n->right); 
-        matrix* matrix_C = matrix_mult(*left_res,*right_res);  
+        matrix* matrix_C = matrix_mult(*left_res,*right_res);
+        std::cout << n->seq << " solution: " << std::endl;
+        printMatrix(matrix_C);   
         return matrix_C;   
     }  
 } 
@@ -156,16 +154,12 @@ matrix* Sequence::compute(Node* n,std::unordered_map<char, matrix*>& dict )
     }  
     if(n->left == nullptr && n->right == nullptr && n->seq[2] == '\0')  
     {
-        std::cout << "computing pair " << n->seq << std::endl;
-        std::cout << "s[0] = " << n->seq[0] << std::endl;   
-        std::cout << "s[1] = " << n->seq[1] << std::endl;   
+        std::cout << "computing pair " << n->seq << std::endl;   
         matrix* matrix_A = dict[n->seq[0]]; 
         matrix* matrix_B = dict[n->seq[1]]; 
-        if(n->seq[1] == '4') 
-        { 
-            printMatrix(dict[n->seq[1]]); 
-        } 
         matrix* matrix_C = matrix_mult(*matrix_A,*matrix_B); 
+        std::cout << n->seq << " solution: " << std::endl;
+        printMatrix(matrix_C); 
         return matrix_C; 
     } 
     else 
@@ -175,6 +169,8 @@ matrix* Sequence::compute(Node* n,std::unordered_map<char, matrix*>& dict )
         matrix* right_res = compute(n->right, dict); 
         std::cout << "COMPUTING ROOT " << std::endl;
         matrix* matrix_C = matrix_mult(*left_res,*right_res);  
+        std::cout << n->seq << " solution: " << std::endl;
+        printMatrix(matrix_C); 
         return matrix_C;   
     }  
 } 
@@ -185,9 +181,10 @@ matrix* Sequence::matrix_mult(matrix &a, matrix &b)
     int row_A,col_A,row_B,col_B;
     row_A = a.row;
     col_A = a.col;
-    
+
+    row_B = b.row; 
     col_B = b.col;
-    row_B = b.row;
+   
 
     c->row = row_A;
     c->col = col_B;
@@ -197,11 +194,12 @@ matrix* Sequence::matrix_mult(matrix &a, matrix &b)
     {
         for(int y = 0; y < col_B; y++)
         {
-            for(int k = 0; k < col_A; k++)
+            int sum = 0;
+            for(int k = 0; k < row_B; k++)
             {
-                //std::cout << a.ptr[x*col_A+k] << " * " << b.ptr[col_B*k+y] << std::endl; 
-                c->ptr[x*k+y] = a.ptr[x*col_A+k] * b.ptr[col_B*k+y];
+                sum += a.ptr[x*col_A+k] * b.ptr[col_B*k+y];
             }
+            c->ptr[x * col_B + y] = sum;
         }
     }
     return c;
