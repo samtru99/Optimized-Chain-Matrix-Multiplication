@@ -20,9 +20,12 @@ int dp(int i, int j, std::vector<int> dimensions,
     std::vector<std::vector<int>> *s_table,  
     std::unordered_map<std::pair<int,int>,int, pair_hash> *seen);
 
-void setValues(matrix *x,int value);
 
 void init_dp(std::vector<std::vector<int>> *s_table, std::vector<matrix> list_matrixes);
+
+void print_matrix(matrix *x);
+
+matrix* new_matrix(int row, int col, int val);
 
 
 #endif

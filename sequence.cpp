@@ -76,33 +76,8 @@ void Sequence::print_sequence(Node* n)
     }
 }
 
-/*
-void Sequence::setvalues(matrix *m, int value)
-{
-    int rows, cols;
-    std::tie(rows, cols) = m->dimension;
-
-    m->values.resize(rows);
-    for (int i = 0; i < rows; ++i) 
-    {
-        m->values[i].resize(cols);
-    }
-
-    for(int i = 0; i < rows; i++)
-    {
-        for(int j = 0; j < cols; j++)
-        {
-            m->values[i][j] = value;
-        }
-    }
-}
-*/
-
 void Sequence::printMatrix(matrix *m)
 {
-    //std::cout << "row = " << m->row << std::endl;
-    //std::cout << "col = " << m->col << std::endl;
-    std::cout << "matrix = " << m->row << "," << m->col << std::endl;
     for(int i = 0; i < m->row; i++)
     {
         for(int j = 0; j < m->col;j++)
@@ -149,27 +124,21 @@ matrix* Sequence::compute(Node* n,std::unordered_map<char, matrix*>& dict )
 {
     if(n->left == nullptr && n->right == nullptr && n->seq[1] == '\0') 
     { 
-        std::cout << "returning " << n->seq << std::endl; 
         return dict[n->seq[0]]; 
     }  
     if(n->left == nullptr && n->right == nullptr && n->seq[2] == '\0')  
     {
-        std::cout << "computing pair " << n->seq << std::endl;   
         matrix* matrix_A = dict[n->seq[0]]; 
         matrix* matrix_B = dict[n->seq[1]]; 
         matrix* matrix_C = matrix_mult(*matrix_A,*matrix_B); 
-        std::cout << n->seq << " solution: " << std::endl;
         printMatrix(matrix_C); 
         return matrix_C; 
     } 
     else 
     { 
-        std::cout << "computing " << n->seq << std::endl; 
         matrix* left_res = compute(n->left, dict); 
         matrix* right_res = compute(n->right, dict); 
-        std::cout << "COMPUTING ROOT " << std::endl;
         matrix* matrix_C = matrix_mult(*left_res,*right_res);  
-        std::cout << n->seq << " solution: " << std::endl;
         printMatrix(matrix_C); 
         return matrix_C;   
     }  

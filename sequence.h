@@ -16,10 +16,9 @@ struct Node
 
 typedef struct matrix
 {
-    std::tuple<int, int> dimension;
-    std::vector<std::vector<int>> values;
+    int row;
+    int col;
     int *ptr;
-    int car;
 }matrix;
 
 
@@ -34,9 +33,9 @@ class Sequence
         Node* init_sequence(int i, int j);
         void print_sequence(Node* n);
         matrix* compute(Node* n);
-        void setvalues(matrix *m, int value);
+        matrix* compute(Node* n, std::unordered_map<char, matrix*>& dict);
         void printMatrix(matrix *m);
-        void matrix_mult(matrix *a, matrix *b, matrix *c, int x, int y, int z);
+        matrix* matrix_mult(matrix &a, matrix &b);
 };
 
 #endif

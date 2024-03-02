@@ -20,21 +20,22 @@ int main()
 {
     
     //Generate Matrices
-    
-    /*
-    matrix *A1 = new matrix;
-    matrix *A2 = new matrix;
-    matrix *A3 = new matrix;
-    matrix *A4 = new matrix;
-    matrix *A5 = new matrix;
-    */
 
+    /*
+    //Odd Number 
     matrix *a1 = new_matrix(4,10,1);
     matrix *a2 = new_matrix(10,3,2);
     matrix *a3 = new_matrix(3,12,3);
     matrix *a4 = new_matrix(12,20,4);
     matrix *a5 = new_matrix(20,7,5);
     //print_matrix(a5);
+    */
+
+    //Even Number
+    matrix *a1 = new_matrix(3,2,1);
+    matrix *a2 = new_matrix(2,4,2);
+    matrix *a3 = new_matrix(4,2,3);
+    matrix *a4 = new_matrix(2,5,4);
   
     
     std::unordered_map<char, matrix*> dict;
@@ -42,14 +43,14 @@ int main()
     dict['2'] = a2;
     dict['3'] = a3;
     dict['4'] = a4;
-    dict['5'] = a5;
+    //dict['5'] = a5;
 
     std::vector<matrix> list_matrixes;
     list_matrixes.push_back(*a1);
     list_matrixes.push_back(*a2);
     list_matrixes.push_back(*a3);
     list_matrixes.push_back(*a4);
-    list_matrixes.push_back(*a5);
+    //list_matrixes.push_back(*a5);
     /*
         Create S table and initalize diagonal to zeros
     */
@@ -76,11 +77,6 @@ int main()
     }
     
     Sequence seq(s_table, dict);
-
-    
-
-   
-
     Node* root = new Node();
     root = seq.init_sequence(1, list_matrixes.size());
      
@@ -91,7 +87,6 @@ int main()
     std::cout << ")" << " \n";
     
     std::cout << "COMPUTING " << std::endl;
-    //matrix* res = seq.compute(root);
     matrix* res = seq.compute(root, dict);
 
     std::cout << "RES IS " << std::endl;

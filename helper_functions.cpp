@@ -89,8 +89,6 @@ void init_dp(std::vector<std::vector<int>> *s_table, std::vector<matrix> list_ma
     for(int i = 0; i < list_matrixes.size(); i++)
     {
         matrix temp = list_matrixes[i];
-        //int a = std::get<0>(temp.dimension);
-        //int b = std::get<1>(temp.dimension);
         int a = temp.row;
         int b = temp.col;
         if(i == list_matrixes.size()-1)
