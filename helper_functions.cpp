@@ -41,50 +41,31 @@ int dp(int i, int j, std::vector<int> dimensions, std::vector<std::vector<int>> 
 
 }
 
-void setValues(matrix *x,int value)
-{
-    int row = std::get<0>(x->dimension);
-    int col = std::get<1>(x->dimension);
-
-    /*
-    int bytes = row * col * sizeof(int);
-    std::cout << "total = " << row * col << std::endl;
-    x->values = (int*)malloc(bytes);
-    int count = 0;
-    for(int i = 0; i < row; i++)
-    {
-        for(int j = 0; j < col; j++)
-        {
-            count+=1;
-            x->values[i * row + j] = value;
-        }
-    }
-    std::cout << "count = " << count << std::endl;
-    */
-    x->values.resize(row);
-    for (int i = 0; i < row; ++i) 
-    {
-        x->values[i].resize(col);
-    }
-    for(int i = 0; i < row; i++)
-    {
-        for(int j = 0; j < col; j++)
-        {
-            x->values[i][j] = value;
-        }
-    }
-    
-}
 
 matrix* new_matrix(int row, int col, int val)
 {
     matrix *m = (matrix*)malloc(sizeof(matrix));
-    m->dimension = std::make_tuple(row,col);
+    m->row = row;
+    m->col = col;
     m->ptr = (int*)malloc(row*col*sizeof(int));
+    for(int i = 0; i < row * col; i++)
+    {
+        m->ptr[i] = val;
+    }
     return m;
 }
 
-
+void print_matrix(matrix *x)
+{
+    for(int i = 0; i < x->row; i++)
+    {
+        for(int j = 0; j <x->col;j++)
+        {
+            std::cout << x->ptr[i*j] << " ";
+        }
+        std::cout << std::endl;
+    }
+}
 
 //Perform DP to find the path of least operations
 void init_dp(std::vector<std::vector<int>> *s_table, std::vector<matrix> list_matrixes)
@@ -108,8 +89,10 @@ void init_dp(std::vector<std::vector<int>> *s_table, std::vector<matrix> list_ma
     for(int i = 0; i < list_matrixes.size(); i++)
     {
         matrix temp = list_matrixes[i];
-        int a = std::get<0>(temp.dimension);
-        int b = std::get<1>(temp.dimension);
+        //int a = std::get<0>(temp.dimension);
+        //int b = std::get<1>(temp.dimension);
+        int a = temp.row;
+        int b = temp.col;
         if(i == list_matrixes.size()-1)
         {
             dimenions.push_back(a);

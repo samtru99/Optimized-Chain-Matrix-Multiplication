@@ -39,6 +39,7 @@ Node* Sequence::init_sequence(int i, int j)
         n->seq[1] = '\0';
         return n;
     }
+    std::cout << "s = " << s_table[i-1][j-1] << std::endl;
     int sub_sequence = s_table[i-1][j-1];
     n->seq = static_cast<char*>(malloc((j-i+1) * sizeof(char)));
     for(int x = 0; x <= (j-i); x++)
@@ -76,6 +77,7 @@ void Sequence::print_sequence(Node* n)
     }
 }
 
+/*
 void Sequence::setvalues(matrix *m, int value)
 {
     int rows, cols;
@@ -94,18 +96,18 @@ void Sequence::setvalues(matrix *m, int value)
             m->values[i][j] = value;
         }
     }
-
 }
+*/
 
 void Sequence::printMatrix(matrix *m)
 {
-    int rows, cols;
-    std::tie(rows, cols) = m->dimension;
-    for(int i = 0; i < rows; i++)
+    std::cout << "row = " << m->row << std::endl;
+    std::cout << "col = " << m->col << std::endl;
+    for(int i = 0; i < m->row; i++)
     {
-        for(int j = 0; j < cols; j++)
+        for(int j = 0; j < m->col;j++)
         {
-            std::cout << m->values[i][j] << " ";
+            std::cout << m->ptr[i*j] << " ";
         }
         std::cout << std::endl;
     }
@@ -114,66 +116,93 @@ void Sequence::printMatrix(matrix *m)
 
 matrix* Sequence::compute(Node* n)
 {
-    /*
-        Solo
-    */
+    //std::cout << "printing 5 " << std::endl;
+    //printMatrix(str_matrix_dict['5']);
     if(n->left == nullptr && n->right == nullptr && n->seq[1] == '\0') 
+    { 
+        std::cout << "returning " << n->seq << std::endl; 
+        return str_matrix_dict[n->seq[0]]; 
+    }  
+    if(n->left == nullptr && n->right == nullptr && n->seq[2] == '\0')  
     {
-        return str_matrix_dict[n->seq[0]];
-    }
-    /*
-        Two pairs
-    */
-    if(n->left == nullptr && n->right == nullptr && n->seq[2] == '\0')
-    {
-        matrix* matrix_A = str_matrix_dict[n->seq[0]];
-        matrix* matrix_B = str_matrix_dict[n->seq[1]];
-        matrix* matrix_C = new matrix;
-        int m,n,x,y;
-        std::tie(m,n) = matrix_A->dimension;
-        std::tie(x,y) = matrix_B->dimension;
-        matrix_C->dimension = std::make_tuple(m,y);
-        matrix_C->values.resize(m);
-        for (int i = 0; i < m; ++i) 
-        {
-            matrix_C->values[i].resize(y);
-        }
-        int val = matrix_A->values[0][0];
-        matrix_mult(matrix_A,matrix_B,matrix_C,m,y,x);
-        return matrix_C;
-    }
-    else
-    {
-        matrix* left_res = compute(n->left);
-        matrix* right_res = compute(n->right);
-
-        matrix* matrix_C = new matrix;
-        int a,b,c,d;
-        std::tie(a,b) = left_res->dimension;
-        std::tie(c,d) = right_res->dimension;
-        matrix_C->dimension = std::make_tuple(a,d);
-        matrix_C->values.resize(a);
-        for (int i = 0; i < a; ++i) 
-        {
-            matrix_C->values[i].resize(d);
-        }
-        matrix_mult(left_res,right_res,matrix_C,a,d,b);
+        std::cout << "computing pair " << n->seq << std::endl;
+        std::cout << "s[0] = " << n->seq[0] << std::endl;   
+        std::cout << "s[1] = " << n->seq[1] << std::endl;   
+        matrix* matrix_A = str_matrix_dict[n->seq[0]]; 
+        matrix* matrix_B = str_matrix_dict[n->seq[1]]; 
+        if(n->seq[1] == '4') 
+        { 
+            printMatrix(str_matrix_dict[n->seq[1]]); 
+        } 
+        matrix* matrix_C = matrix_mult(*matrix_A,*matrix_B); 
+        return matrix_C; 
+    } 
+    else 
+    { 
+        std::cout << "computing " << n->seq << std::endl; 
+        matrix* left_res = compute(n->left); 
+        matrix* right_res = compute(n->right); 
+        matrix* matrix_C = matrix_mult(*left_res,*right_res);  
         return matrix_C;   
     }  
-}
+} 
 
-
-
-void Sequence::matrix_mult(matrix *a, matrix *b, matrix *c, int x, int y, int z)
+matrix* Sequence::compute(Node* n,std::unordered_map<char, matrix*>& dict )
 {
-    for(int row = 0; row < x; row++)
+    if(n->left == nullptr && n->right == nullptr && n->seq[1] == '\0') 
+    { 
+        std::cout << "returning " << n->seq << std::endl; 
+        return dict[n->seq[0]]; 
+    }  
+    if(n->left == nullptr && n->right == nullptr && n->seq[2] == '\0')  
     {
-        for(int col = 0; col < y; col++)
+        std::cout << "computing pair " << n->seq << std::endl;
+        std::cout << "s[0] = " << n->seq[0] << std::endl;   
+        std::cout << "s[1] = " << n->seq[1] << std::endl;   
+        matrix* matrix_A = dict[n->seq[0]]; 
+        matrix* matrix_B = dict[n->seq[1]]; 
+        if(n->seq[1] == '4') 
+        { 
+            printMatrix(dict[n->seq[1]]); 
+        } 
+        matrix* matrix_C = matrix_mult(*matrix_A,*matrix_B); 
+        return matrix_C; 
+    } 
+    else 
+    { 
+        std::cout << "computing " << n->seq << std::endl; 
+        matrix* left_res = compute(n->left, dict); 
+        matrix* right_res = compute(n->right, dict); 
+        std::cout << "COMPUTING ROOT " << std::endl;
+        matrix* matrix_C = matrix_mult(*left_res,*right_res);  
+        return matrix_C;   
+    }  
+} 
+
+matrix* Sequence::matrix_mult(matrix &a, matrix &b)
+{
+    matrix *c = (matrix*)malloc(sizeof(matrix));
+    int row_A,col_A,row_B,col_B;
+    row_A = a.row;
+    col_A = a.col;
+    
+    col_B = b.col;
+    row_B = b.row;
+
+    c->row = row_A;
+    c->col = col_B;
+    c->ptr = (int*)malloc(row_A*col_B*sizeof(int));
+
+    for(int x = 0; x < row_A; x++)
+    {
+        for(int y = 0; y < col_B; y++)
         {
-            for(int k = 0; k < z; k++)
+            for(int k = 0; k < col_A; k++)
             {
-                c->values[row][col] += (a->values[row][k] * b->values[k][col]);
+                //std::cout << a.ptr[x*col_A+k] << " * " << b.ptr[col_B*k+y] << std::endl; 
+                c->ptr[x*k+y] = a.ptr[x*col_A+k] * b.ptr[col_B*k+y];
             }
         }
     }
+    return c;
 }

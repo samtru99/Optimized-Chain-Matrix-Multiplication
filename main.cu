@@ -21,60 +21,35 @@ int main()
     
     //Generate Matrices
     
+    /*
     matrix *A1 = new matrix;
     matrix *A2 = new matrix;
     matrix *A3 = new matrix;
     matrix *A4 = new matrix;
     matrix *A5 = new matrix;
-
+    */
 
     matrix *a1 = new_matrix(4,10,1);
     matrix *a2 = new_matrix(10,3,2);
     matrix *a3 = new_matrix(3,12,3);
     matrix *a4 = new_matrix(12,20,4);
     matrix *a5 = new_matrix(20,7,5);
+    //print_matrix(a5);
   
-    //For odd number
-    A1->dimension = std::make_tuple(4,10);
-    A2->dimension = std::make_tuple(10,3);
-    A3->dimension = std::make_tuple(3,12);
-    A4->dimension = std::make_tuple(12,20);
-    A5->dimension = std::make_tuple(20,7);
     
-
-
-    std::cout << "1st matrix " << std::endl;
-    setValues(A1, 1);
-    //seq.printMatrix(A1);
-    std::cout << "2nd matrix " << std::endl;
-    setValues(A2, 2);
-    //seq.printMatrix(A2);
-    std::cout << "3rd matrix " << std::endl;
-    setValues(A3, 3);
-    std::cout << "4th matrix " << std::endl;
-    setValues(A4, 4);
-    std::cout << "5th matrix " << std::endl;
-    setValues(A5, 5);
-    //For even number 
-    /*
-    A1->dimension = std::make_tuple(3,2);
-    A2->dimension = std::make_tuple(2,4);
-    A3->dimension = std::make_tuple(4,2);
-    A4->dimension = std::make_tuple(2,5);
-    */
     std::unordered_map<char, matrix*> dict;
-    dict['1'] = A1;
-    dict['2'] = A2;
-    dict['3'] = A3;
-    dict['4'] = A4;
-    dict['5'] = A5;
+    dict['1'] = a1;
+    dict['2'] = a2;
+    dict['3'] = a3;
+    dict['4'] = a4;
+    dict['5'] = a5;
 
     std::vector<matrix> list_matrixes;
-    list_matrixes.push_back(*A1);
-    list_matrixes.push_back(*A2);
-    list_matrixes.push_back(*A3);
-    list_matrixes.push_back(*A4);
-    list_matrixes.push_back(*A5);
+    list_matrixes.push_back(*a1);
+    list_matrixes.push_back(*a2);
+    list_matrixes.push_back(*a3);
+    list_matrixes.push_back(*a4);
+    list_matrixes.push_back(*a5);
     /*
         Create S table and initalize diagonal to zeros
     */
@@ -117,8 +92,9 @@ int main()
     
     std::cout << "COMPUTING " << std::endl;
     //matrix* res = seq.compute(root);
+    matrix* res = seq.compute(root, dict);
 
-    //std::cout << "RES IS " << std::endl;
-    //seq.printMatrix(res);
+    std::cout << "RES IS " << std::endl;
+    seq.printMatrix(res);
     return 0;
 }
