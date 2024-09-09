@@ -4,8 +4,8 @@
 #include <tuple>
 #include <vector>
 #include <unordered_map>
-#include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+//#include <cuda_runtime.h>
+//#include <device_launch_parameters.h>
 #include <string.h>
 #include "sequence.h"
 #include "helper_functions.h"

@@ -4,7 +4,7 @@
 #include <tuple>
 #include <vector>
 #include <unordered_map>
-#include "sequence.h"
+//#include "sequence.h"
 #include "helper_functions.h"
 
 int dp(int i, int j, std::vector<int> dimensions, std::vector<std::vector<int>> *s_table,  std::unordered_map<std::pair<int,int>,int, pair_hash> *seen)
