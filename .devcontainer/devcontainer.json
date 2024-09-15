@@ -1,0 +1,21 @@
+{
+
+    "name": "Matrix Mult",
+    "image": "nvidia/cuda:12.6.1-devel-ubuntu20.04",
+    "runArgs": [
+        "--gpus", "1" 
+    ],
+    "customizations": {
+        "vscode": {
+            "settings": {},
+            "extensions": [
+                "ms-vscode.cpptools-extension-pack",
+                "twxs.cmake",
+                "ms-vscode.cmake-tools",
+                "llvm-vs-code-extensions.vscode-clangd",
+                "GitHub.remotehub"
+            ]
+        }
+    },
+    "postCreateCommand": "apt update && apt-get install git",
+}
