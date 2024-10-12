@@ -1,7 +1,7 @@
 #all:
 #	nvcc main.cu -o main  -lcudart -lcudadevrt
 CXX = nvcc
-CPP = gcc
+CPP = g++
 CFLAGS = -std=c++17 -g
 LDFLAGS =  -lcudart -lcudadevrt
 
@@ -13,8 +13,8 @@ LDFLAGS =  -lcudart -lcudadevrt
 
 #######################
 #	For now without cuda
-main: main.o sequence.o helper_functions.o
-	$(CPP) $(CFLAGS) -o main main.o sequence.o helper_functions.o
+main: main.o sequence.o #helper_functions.o
+	$(CPP) $(CFLAGS) -o main main.o sequence.o #helper_functions.o
 
 main.o: main.cpp
 	$(CPP) $(CFLAGS) -c main.cpp
@@ -22,8 +22,5 @@ main.o: main.cpp
 sequence.o: sequence.cpp
 	$(CPP) $(CFLAGS) -c sequence.cpp
 
-helper_functions.o: helper_functions.cpp
-	$(CPP) $(CFLAGS) -c helper_functions.cpp
-
 clean:
-	rm -f main main.o sequence.o helper_functions.o
+	rm -f main main.o sequence.o 

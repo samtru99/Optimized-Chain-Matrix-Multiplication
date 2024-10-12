@@ -8,7 +8,25 @@
 //#include <device_launch_parameters.h>
 #include <string.h>
 #include "sequence.h"
-#include "helper_functions.h"
+
+void setValues(matrix *x,int value)
+{
+    int row = std::get<0>(x->dimension);
+    int col = std::get<1>(x->dimension);
+    x->values.resize(row);
+    for (int i = 0; i < row; ++i) 
+    {
+        x->values[i].resize(col);
+    }
+    for(int i = 0; i < row; i++)
+    {
+        for(int j = 0; j < col; j++)
+        {
+            x->values[i][j] = value;
+        }
+    }
+}
+
 
 int main()
 {
@@ -23,12 +41,13 @@ int main()
     
     /*
     //For odd number 
-    A1->dimension = std::make_tuple(4,10);
-    A2->dimension = std::make_tuple(10,3);
-    A3->dimension = std::make_tuple(3,12);
-    A4->dimension = std::make_tuple(12,20);
-    A5->dimension = std::make_tuple(20,7);
     */
+    // A1->dimension = std::make_tuple(4,10);
+    // A2->dimension = std::make_tuple(10,3);
+    // A3->dimension = std::make_tuple(3,12);
+    // A4->dimension = std::make_tuple(12,20);
+    // A5->dimension = std::make_tuple(20,7);
+    
 
     //For even number 
     A1->dimension = std::make_tuple(3,2);
@@ -39,7 +58,7 @@ int main()
     setValues(A2, 2);
     setValues(A3, 3);
     setValues(A4, 4);
-    //setValues(A5, 5);
+   // setValues(A5, 5);
     
    
 
@@ -48,14 +67,14 @@ int main()
     dict['2'] = A2;
     dict['3'] = A3;
     dict['4'] = A4;
-    //dict['5'] = A5;
+   // dict['5'] = A5;
 
     std::vector<matrix> list_matrixes;
     list_matrixes.push_back(*A1);
     list_matrixes.push_back(*A2);
     list_matrixes.push_back(*A3);
     list_matrixes.push_back(*A4);
-    //list_matrixes.push_back(*A5);
+   // list_matrixes.push_back(*A5);
 
 
     /*
@@ -70,10 +89,14 @@ int main()
         s_table.push_back(row);
     }
 
+    Sequence seq(s_table, dict);
+
+
+
     /*
         Perform DP
     */
-    init_dp(&s_table, list_matrixes);
+    seq.init_dp(list_matrixes);
 
     //Print S-Table for debugging
     /*
@@ -87,7 +110,7 @@ int main()
         std::cout << std::endl;
     }
     */
-    Sequence seq(s_table, dict);
+    //Sequence seq(s_table, dict);
 
     Node* root = new Node();
     root = seq.init_sequence(1, list_matrixes.size());
