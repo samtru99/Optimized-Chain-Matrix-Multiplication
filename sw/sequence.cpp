@@ -270,16 +270,7 @@ matrix* Sequence::gpu_compute(Node *n)
         int B_len = x * y;
         int C_len = m * y;
         
-
-
-        matrix_C->values.resize(m);
-        for (int i = 0; i < m; ++i) 
-        {
-            matrix_C->values[i].resize(y);
-        }
-        int val = matrix_A->values[0][0];
-        matrix_mult(matrix_A,matrix_B,matrix_C,m,y,x);
-        return matrix_C;
+        
     }
     else
     {
@@ -299,4 +290,17 @@ matrix* Sequence::gpu_compute(Node *n)
         matrix_mult(left_res,right_res,matrix_C,a,d,b);
         return matrix_C;   
     }  
+}
+
+void Sequence::transfer_matrix(int *a, matrix *x)
+{
+    int row, col;
+    std::tie(row, col) = x->dimension;
+    for(int i = 0; i < row; i++)
+    {
+        for(int j = 0; j < col; j++)
+        {
+            a[i*j] = x->values[i][j];
+        }
+    }
 }
