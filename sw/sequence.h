@@ -84,12 +84,21 @@ class Sequence
 
         /// @brief - Prints s table (debugging usage)
         void print_s_table();
-
-        /// @brief - transfer the matrix from 2d vector to ptr array
-        void transfer_matrix(int *a, matrix *x);
         
+        /*
+            functions for gpu computation 
+        */
+
         /// @brief same as compute but using gpu computation
         matrix* gpu_compute(Node* n);
+
+        /**
+         * @brief - transfer the matrix from struct to ptr array
+         * 
+         * @param a - ptr (destination)
+         * @param x - source matrix 
+         */
+        void transfer_matrix(int *a, matrix *x);
 
 };
 
