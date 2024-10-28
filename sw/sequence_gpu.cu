@@ -1,9 +1,30 @@
 #include "stdlib.h"
-#include "sequence.h"
+#include "sequence_gpu.h"
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 #include <iostream>
 #include <unordered_map>
+
+
+__global__ void matrix_mult_gpu(int *a, int *b, int *c, int M, int N, int K)
+{
+    // Calculate row and column
+    int row = blockIdx.y * blockDim.y + threadIdx.y;
+    int col = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if(row < M && col < K)
+    {
+        // Temp variable for acuumulatting results
+        int temp = 0;
+        for(int i = 0; i < N; i++)
+        {
+            temp += a[row * N + i] * b[i * K + col];
+        }
+        c[row * N + col] = temp;
+    }
+}
+
+
 Sequence::Sequence(
     std::vector<std::vector<int>> temp_table,
     std::unordered_map<char,matrix*> &temp_dict) : s_table(temp_table), str_matrix_dict(temp_dict)
@@ -145,19 +166,19 @@ matrix* Sequence::compute(Node* n)
 
 
 
-void Sequence::matrix_mult(matrix *a, matrix *b, matrix *c, int x, int y, int z)
-{
-    for(int row = 0; row < x; row++)
-    {
-        for(int col = 0; col < y; col++)
-        {
-            for(int k = 0; k < z; k++)
-            {
-                c->values[row][col] += (a->values[row][k] * b->values[k][col]);
-            }
-        }
-    }
-}
+// void Sequence::matrix_mult(matrix *a, matrix *b, matrix *c, int x, int y, int z)
+// {
+//     for(int row = 0; row < x; row++)
+//     {
+//         for(int col = 0; col < y; col++)
+//         {
+//             for(int k = 0; k < z; k++)
+//             {
+//                 c->values[row][col] += (a->values[row][k] * b->values[k][col]);
+//             }
+//         }
+//     }
+// }
 
 
 
@@ -272,46 +293,122 @@ matrix* Sequence::gpu_compute(Node *n)
         std::tie(M,N_1) = matrix_A->dimension;
         std::tie(N_2,K) = matrix_B->dimension;
         matrix_C->dimension = std::make_tuple(M,K);
+        matrix_C->values.resize(M);
+        for (int i = 0; i < M; ++i) 
+        {
+            matrix_C->values[i].resize(K);
+        }
+
 
         // Create and allocate host ptr
         int *host_memory_a = new int [M * N_1];
         int *host_memory_b = new int [N_2 * K];
         int *host_memory_c = new int [M * K];
 
+        //transfer to ptr
+        transfer_to_ptr(host_memory_a, matrix_A);
+        transfer_to_ptr(host_memory_b, matrix_B);
+
+
         // Create and allocate device ptr
         int *device_memory_a, *device_memory_b, *device_memory_c;
-
         cudaMalloc(&device_memory_a,M * N_1 * sizeof(int));
         cudaMalloc(&device_memory_b,N_2 * K * sizeof(int));
         cudaMalloc(&device_memory_c,M * K * sizeof(int));
 
-
-
-
-
+        // # of threads 
+        int THREADS_M = 16;
         
+        // set up blocks
+        int block_row = (M + THREADS_M - 1) / THREADS_M;
+        int block_cols = (M + THREADS_M - 1) / THREADS_M;
+
+        dim3 threads_m(THREADS_M, THREADS_M);
+        dim3 grid_m(block_row, block_cols);
+
+        // Copy data to device
+        cudaMemcpy(device_memory_a, host_memory_a, M * N_1 * sizeof(int), cudaMemcpyHostToDevice);
+        cudaMemcpy(device_memory_b, host_memory_b, N_2 * K * sizeof(int), cudaMemcpyHostToDevice);
+        cudaMemcpy(device_memory_c, host_memory_c, M * K * sizeof(int), cudaMemcpyHostToDevice);
+        
+        // Call Kernel Function
+        matrix_mult_gpu<<<grid_m, threads_m>>>(device_memory_a, device_memory_b, device_memory_c, M, N_1, K);
+
+        // Copy back the results
+        cudaMemcpy(host_memory_c, device_memory_c, M * K * sizeof(int), cudaMemcpyDeviceToHost);
+
+        // Verify 
+        transfer_to_matrix(host_memory_c, matrix_C);
+
+        return matrix_C;
     }
     else
     {
         matrix* left_res = compute(n->left);
         matrix* right_res = compute(n->right);
-
         matrix* matrix_C = new matrix;
-        int a,b,c,d;
-        std::tie(a,b) = left_res->dimension;
-        std::tie(c,d) = right_res->dimension;
-        matrix_C->dimension = std::make_tuple(a,d);
-        matrix_C->values.resize(a);
-        for (int i = 0; i < a; ++i) 
+        
+        
+        // Determine size of dimenisons
+        int M;
+        int N_1;
+        int N_2;
+        int K;
+
+        std::tie(M,N_1) = left_res->dimension;
+        std::tie(N_2,K) = right_res->dimension;
+        matrix_C->dimension = std::make_tuple(M,K);
+        matrix_C->values.resize(M);
+        for (int i = 0; i < M; ++i) 
         {
-            matrix_C->values[i].resize(d);
+            matrix_C->values[i].resize(K);
         }
-        matrix_mult(left_res,right_res,matrix_C,a,d,b);
-        return matrix_C;   
+
+        // Create and allocate host ptr
+        int *host_memory_a = new int [M * N_1];
+        int *host_memory_b = new int [N_2 * K];
+        int *host_memory_c = new int [M * K];
+
+        // Transfer to ptr
+        transfer_to_ptr(host_memory_a, left_res);
+        transfer_to_ptr(host_memory_b, right_res);
+
+
+        // Create and allocate device ptr
+        int *device_memory_a, *device_memory_b, *device_memory_c;
+        cudaMalloc(&device_memory_a,M * N_1 * sizeof(int));
+        cudaMalloc(&device_memory_b,N_2 * K * sizeof(int));
+        cudaMalloc(&device_memory_c,M * K * sizeof(int));
+
+        // # of threads 
+        int THREADS_M = 16;
+        
+        // set up blocks
+        int block_row = (M + THREADS_M - 1) / THREADS_M;
+        int block_cols = (M + THREADS_M - 1) / THREADS_M;
+
+        dim3 threads_m(THREADS_M, THREADS_M);
+        dim3 grid_m(block_row, block_cols);
+
+        // Copy data to device
+        cudaMemcpy(device_memory_a, host_memory_a, M * N_1 * sizeof(int), cudaMemcpyHostToDevice);
+        cudaMemcpy(device_memory_b, host_memory_b, N_2 * K * sizeof(int), cudaMemcpyHostToDevice);
+        cudaMemcpy(device_memory_c, host_memory_c, M * K * sizeof(int), cudaMemcpyHostToDevice);
+        
+        // Call Kernel Function
+        matrix_mult_gpu<<<grid_m, threads_m>>>(device_memory_a, device_memory_b, device_memory_c, M, N_1, K);
+
+        // Copy back the results
+        cudaMemcpy(host_memory_c, device_memory_c, M * K * sizeof(int), cudaMemcpyDeviceToHost);
+
+        // Verify 
+        transfer_to_matrix(host_memory_c, matrix_C);
+
+        return matrix_C;
     }  
 }
 
-void Sequence::transfer_matrix(int *a, matrix *x)
+void Sequence::transfer_to_ptr(int *a, matrix *x)
 {
     int row, col;
     std::tie(row, col) = x->dimension;
@@ -322,4 +419,17 @@ void Sequence::transfer_matrix(int *a, matrix *x)
             a[i*j] = x->values[i][j];
         }
     }
+}
+
+void Sequence::transfer_to_matrix(int *a, matrix *x)
+{
+    int row, col;
+    std::tie(row, col) = x->dimension;
+    for(int i = 0; i < row; i++)
+    {
+        for(int j = 0; j < col; j++)
+        {
+            x->values[i][j] = a[i*j];
+        }
+    } 
 }
