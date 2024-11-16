@@ -3,7 +3,10 @@
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 #include <cassert>
+#include <cstddef>
+#include <cstdlib>
 #include <iostream>
+#include <ostream>
 #include <unordered_map>
 #include <cuda.h>
 
@@ -22,7 +25,7 @@ __global__ void matrix_mult_gpu(int *a, int *b, int *c, int M, int N, int K)
         {
             temp += a[row * N + i] * b[i * K + col];
         }
-        c[row * N + col] = temp;
+        c[row * K + col] = temp;
     }
 }
 
@@ -287,6 +290,10 @@ matrix* Sequence::gpu_compute(Node *n)
         matrix* matrix_C = new matrix;
 
         std::cout << "Matrix " << matrix_A->name << std::endl;
+        printMatrix(matrix_A);
+        std::cout << "Matrix " << matrix_B->name << std::endl;
+        printMatrix(matrix_B);
+        matrix_C->name = matrix_A->name + matrix_B->name;
         // Determine size of dimenisons
         int M;
         int N_1;
@@ -314,6 +321,23 @@ matrix* Sequence::gpu_compute(Node *n)
         transfer_to_ptr(host_memory_a, matrix_A);
         transfer_to_ptr(host_memory_b, matrix_B);
 
+        std::cout << "after transfer to ptr A " << std::endl;
+        int counter = 0;
+        while(host_memory_a[counter] != 0)
+        {
+            std::cout << host_memory_a[counter] << " ";
+            counter++;
+        }
+        std::cout << std::endl;
+        std::cout << "---" << std::endl;
+        std::cout << "after transfer to ptr B " << std::endl;
+        counter = 0;
+        while(host_memory_a[counter] != 0)
+        {
+            std::cout << host_memory_b[counter] << " ";
+            counter++;
+        }
+
 
         // Create and allocate device ptr
         int *device_memory_a, *device_memory_b, *device_memory_c;
@@ -325,11 +349,11 @@ matrix* Sequence::gpu_compute(Node *n)
         int THREADS_M = 16;
         
         // set up blocks
-        int block_row = (M + THREADS_M - 1) / THREADS_M;
-        int block_cols = (M + THREADS_M - 1) / THREADS_M;
+        int block_rows = (M + THREADS_M - 1) / THREADS_M;
+        int block_cols = (K + THREADS_M - 1) / THREADS_M;
 
         dim3 threads_m(THREADS_M, THREADS_M);
-        dim3 grid_m(block_row, block_cols);
+        dim3 grid_m(block_cols, block_rows);
 
         // Copy data to device
         cudaMemcpy(device_memory_a, host_memory_a, M * N_1 * sizeof(int), cudaMemcpyHostToDevice);
@@ -344,7 +368,17 @@ matrix* Sequence::gpu_compute(Node *n)
 
         // Verify 
         transfer_to_matrix(host_memory_c, matrix_C);
+        std::cout << "Matrix " << matrix_C->name << std::endl;
         printMatrix(matrix_C);
+        
+        free(host_memory_a);
+        free(host_memory_b);
+        free(host_memory_c);
+        cudaFree(device_memory_a);
+        cudaFree(device_memory_b);
+        cudaFree(device_memory_c);
+
+
         return matrix_C;
     }
     else
@@ -353,7 +387,11 @@ matrix* Sequence::gpu_compute(Node *n)
         matrix* right_res = gpu_compute(n->right);
         matrix* matrix_C = new matrix;
         
-        
+        std::cout << "Matrix left_res " << left_res->name << std::endl;
+        printMatrix(left_res);
+        std::cout << "Matrix right_res " << right_res->name << std::endl;
+        printMatrix(right_res);
+        matrix_C->name = left_res->name + right_res->name;
         // Determine size of dimenisons
         int M;
         int N_1;
@@ -378,8 +416,22 @@ matrix* Sequence::gpu_compute(Node *n)
         // Transfer to ptr
         transfer_to_ptr(host_memory_a, left_res);
         transfer_to_ptr(host_memory_b, right_res);
-
-
+        std::cout << "after transfer to ptr A " << std::endl;
+        int counter = 0;
+        while(host_memory_a[counter] != 0)
+        {
+            std::cout << host_memory_a[counter] << " ";
+            counter++;
+        }
+        std::cout << std::endl;
+        std::cout << "----" << std::endl;
+        std::cout << "after transfer to ptr B " << std::endl;
+        counter = 0;
+        while(host_memory_a[counter] != 0)
+        {
+            std::cout << host_memory_b[counter] << " ";
+            counter++;
+        }
         // Create and allocate device ptr
         int *device_memory_a, *device_memory_b, *device_memory_c;
         cudaMalloc(&device_memory_a,M * N_1 * sizeof(int));
@@ -391,15 +443,15 @@ matrix* Sequence::gpu_compute(Node *n)
         
         // set up blocks
         int block_row = (M + THREADS_M - 1) / THREADS_M;
-        int block_cols = (M + THREADS_M - 1) / THREADS_M;
+        int block_cols = (K + THREADS_M - 1) / THREADS_M;
 
         dim3 threads_m(THREADS_M, THREADS_M);
-        dim3 grid_m(block_row, block_cols);
+        dim3 grid_m(block_cols, block_row);
 
         // Copy data to device
         cudaMemcpy(device_memory_a, host_memory_a, M * N_1 * sizeof(int), cudaMemcpyHostToDevice);
         cudaMemcpy(device_memory_b, host_memory_b, N_2 * K * sizeof(int), cudaMemcpyHostToDevice);
-        cudaMemcpy(device_memory_c, host_memory_c, M * K * sizeof(int), cudaMemcpyHostToDevice);
+        //cudaMemcpy(device_memory_c, host_memory_c, M * K * sizeof(int), cudaMemcpyHostToDevice);
         
         // Call Kernel Function
         matrix_mult_gpu<<<grid_m, threads_m>>>(device_memory_a, device_memory_b, device_memory_c, M, N_1, K);
@@ -409,20 +461,40 @@ matrix* Sequence::gpu_compute(Node *n)
 
         // Verify 
         transfer_to_matrix(host_memory_c, matrix_C);
+        std::cout << "Matrix c (res) " << matrix_C->name << std::endl;
         printMatrix(matrix_C);
+
+        free(host_memory_a);
+        free(host_memory_b);
+        free(host_memory_c);
+        cudaFree(device_memory_a);
+        cudaFree(device_memory_b);
+        cudaFree(device_memory_c);
+
         return matrix_C;
     }  
 }
-
+/* int rows, cols;
+    std::tie(rows, cols) = m->dimension;
+    for(int i = 0; i < rows; i++)
+    {
+        for(int j = 0; j < cols; j++)
+        {
+            std::cout << m->values[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }*/
 void Sequence::transfer_to_ptr(int *a, matrix *x)
 {
     int row, col;
+    int counter = 0;
     std::tie(row, col) = x->dimension;
     for(int i = 0; i < row; i++)
     {
         for(int j = 0; j < col; j++)
         {
-            a[i*j] = x->values[i][j];
+            a[counter] = x->values[i][j];
+            counter+=1;
         }
     }
 }
