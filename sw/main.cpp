@@ -7,7 +7,7 @@
 //#include <cuda_runtime.h>
 //#include <device_launch_parameters.h>
 #include <string.h>
-#include "sequence.h"
+#include "sequence_gpu.h"
 
 void setValues(matrix *x,int value)
 {
@@ -37,8 +37,13 @@ int main()
     matrix *A2 = new matrix;
     matrix *A3 = new matrix;
     matrix *A4 = new matrix;
+
+    A1->name = "A1";
+    A2->name = "A2";
+    A3->name = "A3";
+    A4->name = "A4";
+
     //matrix *A5 = new matrix;
-    
     /*
     //For odd number 
     */
@@ -122,7 +127,7 @@ int main()
     std::cout << ")" << " \n";
     
     std::cout << "COMPUTING " << std::endl;
-    matrix* res = seq.compute(root);
+    matrix* res = seq.gpu_compute(root);
 
     std::cout << "RES IS " << std::endl;
     seq.printMatrix(res);

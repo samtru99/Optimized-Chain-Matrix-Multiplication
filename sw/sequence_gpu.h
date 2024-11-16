@@ -23,6 +23,7 @@ struct Node
 
 struct matrix
 {
+    std::string name;
     std::tuple<int, int> dimension;
     std::vector<std::vector<double>> values;
 };

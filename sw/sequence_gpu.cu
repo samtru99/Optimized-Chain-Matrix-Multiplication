@@ -2,8 +2,10 @@
 #include "sequence_gpu.h"
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
+#include <cassert>
 #include <iostream>
 #include <unordered_map>
+#include <cuda.h>
 
 
 __global__ void matrix_mult_gpu(int *a, int *b, int *c, int M, int N, int K)
@@ -166,19 +168,19 @@ matrix* Sequence::compute(Node* n)
 
 
 
-// void Sequence::matrix_mult(matrix *a, matrix *b, matrix *c, int x, int y, int z)
-// {
-//     for(int row = 0; row < x; row++)
-//     {
-//         for(int col = 0; col < y; col++)
-//         {
-//             for(int k = 0; k < z; k++)
-//             {
-//                 c->values[row][col] += (a->values[row][k] * b->values[k][col]);
-//             }
-//         }
-//     }
-// }
+void Sequence::matrix_mult(matrix *a, matrix *b, matrix *c, int x, int y, int z)
+{
+    for(int row = 0; row < x; row++)
+    {
+        for(int col = 0; col < y; col++)
+        {
+            for(int k = 0; k < z; k++)
+            {
+                c->values[row][col] += (a->values[row][k] * b->values[k][col]);
+            }
+        }
+    }
+}
 
 
 
@@ -284,6 +286,7 @@ matrix* Sequence::gpu_compute(Node *n)
         matrix* matrix_B = str_matrix_dict[n->seq[1]];
         matrix* matrix_C = new matrix;
 
+        std::cout << "Matrix " << matrix_A->name << std::endl;
         // Determine size of dimenisons
         int M;
         int N_1;
@@ -292,6 +295,8 @@ matrix* Sequence::gpu_compute(Node *n)
 
         std::tie(M,N_1) = matrix_A->dimension;
         std::tie(N_2,K) = matrix_B->dimension;
+
+        assert(N_1 == N_2);
         matrix_C->dimension = std::make_tuple(M,K);
         matrix_C->values.resize(M);
         for (int i = 0; i < M; ++i) 
@@ -305,7 +310,7 @@ matrix* Sequence::gpu_compute(Node *n)
         int *host_memory_b = new int [N_2 * K];
         int *host_memory_c = new int [M * K];
 
-        //transfer to ptr
+        //transfer to int ptr
         transfer_to_ptr(host_memory_a, matrix_A);
         transfer_to_ptr(host_memory_b, matrix_B);
 
@@ -339,13 +344,13 @@ matrix* Sequence::gpu_compute(Node *n)
 
         // Verify 
         transfer_to_matrix(host_memory_c, matrix_C);
-
+        printMatrix(matrix_C);
         return matrix_C;
     }
     else
     {
-        matrix* left_res = compute(n->left);
-        matrix* right_res = compute(n->right);
+        matrix* left_res = gpu_compute(n->left);
+        matrix* right_res = gpu_compute(n->right);
         matrix* matrix_C = new matrix;
         
         
@@ -357,6 +362,7 @@ matrix* Sequence::gpu_compute(Node *n)
 
         std::tie(M,N_1) = left_res->dimension;
         std::tie(N_2,K) = right_res->dimension;
+        assert(N_1 == N_2);
         matrix_C->dimension = std::make_tuple(M,K);
         matrix_C->values.resize(M);
         for (int i = 0; i < M; ++i) 
@@ -403,7 +409,7 @@ matrix* Sequence::gpu_compute(Node *n)
 
         // Verify 
         transfer_to_matrix(host_memory_c, matrix_C);
-
+        printMatrix(matrix_C);
         return matrix_C;
     }  
 }

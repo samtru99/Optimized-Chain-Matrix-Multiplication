@@ -13,7 +13,8 @@
                 "twxs.cmake",
                 "ms-vscode.cmake-tools",
                 "llvm-vs-code-extensions.vscode-clangd",
-                "GitHub.remotehub"
+                "GitHub.remotehub",
+                "cschlosser.doxdocgen"
             ]
         }
     },
