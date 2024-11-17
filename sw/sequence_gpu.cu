@@ -222,7 +222,6 @@ void Sequence::init_dp(std::vector<matrix> list_matrixes)
         }
     }
      dp(1,list_matrixes.size(), dimenions, &seen);
-    //std::cout << "MAX is " << seen[{1,list_matrixes.size()}] << std::endl;
 }
 
 int Sequence::dp(int i, int j, std::vector<int> dimensions, std::unordered_map<std::pair<int, int>, int, pair_hash> *seen)
@@ -288,12 +287,8 @@ matrix* Sequence::gpu_compute(Node *n)
         matrix* matrix_A = str_matrix_dict[n->seq[0]];
         matrix* matrix_B = str_matrix_dict[n->seq[1]];
         matrix* matrix_C = new matrix;
-
-        std::cout << "Matrix " << matrix_A->name << std::endl;
-        printMatrix(matrix_A);
-        std::cout << "Matrix " << matrix_B->name << std::endl;
-        printMatrix(matrix_B);
         matrix_C->name = matrix_A->name + matrix_B->name;
+
         // Determine size of dimenisons
         int M;
         int N_1;
@@ -320,24 +315,6 @@ matrix* Sequence::gpu_compute(Node *n)
         //transfer to int ptr
         transfer_to_ptr(host_memory_a, matrix_A);
         transfer_to_ptr(host_memory_b, matrix_B);
-
-        std::cout << "after transfer to ptr A " << std::endl;
-        int counter = 0;
-        while(host_memory_a[counter] != 0)
-        {
-            std::cout << host_memory_a[counter] << " ";
-            counter++;
-        }
-        std::cout << std::endl;
-        std::cout << "---" << std::endl;
-        std::cout << "after transfer to ptr B " << std::endl;
-        counter = 0;
-        while(host_memory_a[counter] != 0)
-        {
-            std::cout << host_memory_b[counter] << " ";
-            counter++;
-        }
-
 
         // Create and allocate device ptr
         int *device_memory_a, *device_memory_b, *device_memory_c;
@@ -368,8 +345,6 @@ matrix* Sequence::gpu_compute(Node *n)
 
         // Verify 
         transfer_to_matrix(host_memory_c, matrix_C);
-        std::cout << "Matrix " << matrix_C->name << std::endl;
-        printMatrix(matrix_C);
         
         free(host_memory_a);
         free(host_memory_b);
@@ -386,11 +361,7 @@ matrix* Sequence::gpu_compute(Node *n)
         matrix* left_res = gpu_compute(n->left);
         matrix* right_res = gpu_compute(n->right);
         matrix* matrix_C = new matrix;
-        
-        std::cout << "Matrix left_res " << left_res->name << std::endl;
-        printMatrix(left_res);
-        std::cout << "Matrix right_res " << right_res->name << std::endl;
-        printMatrix(right_res);
+
         matrix_C->name = left_res->name + right_res->name;
         // Determine size of dimenisons
         int M;
@@ -416,22 +387,7 @@ matrix* Sequence::gpu_compute(Node *n)
         // Transfer to ptr
         transfer_to_ptr(host_memory_a, left_res);
         transfer_to_ptr(host_memory_b, right_res);
-        std::cout << "after transfer to ptr A " << std::endl;
-        int counter = 0;
-        while(host_memory_a[counter] != 0)
-        {
-            std::cout << host_memory_a[counter] << " ";
-            counter++;
-        }
-        std::cout << std::endl;
-        std::cout << "----" << std::endl;
-        std::cout << "after transfer to ptr B " << std::endl;
-        counter = 0;
-        while(host_memory_a[counter] != 0)
-        {
-            std::cout << host_memory_b[counter] << " ";
-            counter++;
-        }
+        
         // Create and allocate device ptr
         int *device_memory_a, *device_memory_b, *device_memory_c;
         cudaMalloc(&device_memory_a,M * N_1 * sizeof(int));
@@ -461,8 +417,6 @@ matrix* Sequence::gpu_compute(Node *n)
 
         // Verify 
         transfer_to_matrix(host_memory_c, matrix_C);
-        std::cout << "Matrix c (res) " << matrix_C->name << std::endl;
-        printMatrix(matrix_C);
 
         free(host_memory_a);
         free(host_memory_b);
@@ -474,16 +428,7 @@ matrix* Sequence::gpu_compute(Node *n)
         return matrix_C;
     }  
 }
-/* int rows, cols;
-    std::tie(rows, cols) = m->dimension;
-    for(int i = 0; i < rows; i++)
-    {
-        for(int j = 0; j < cols; j++)
-        {
-            std::cout << m->values[i][j] << " ";
-        }
-        std::cout << std::endl;
-    }*/
+
 void Sequence::transfer_to_ptr(int *a, matrix *x)
 {
     int row, col;
