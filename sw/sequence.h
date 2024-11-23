@@ -98,7 +98,15 @@ class Sequence
          * @param a - ptr (destination)
          * @param x - source matrix 
          */
-        void transfer_matrix(int *a, matrix *x);
+        void transfer_to_ptr(int *a, matrix *x);
+
+        /**
+         * @brief - transfer the matrix from struct to ptr array
+         * 
+         * @param a - ptr 
+         * @param x - matrix (destination) 
+         */
+        void transfer_to_matrix(int *a, matrix *x);
 
 };
 

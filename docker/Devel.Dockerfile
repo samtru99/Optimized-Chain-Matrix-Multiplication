@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     vim \
     wget \
     git \ 
+    libssl-dev \
     && apt-get clean
 
 # Install CMAKE
@@ -29,7 +30,7 @@ RUN VERSION=1_81_0 && \
     cd BoostInstall && \
     wget https://archives.boost.io/release/1.81.0/source/boost_${VERSION}.tar.gz && \
     tar xvf boost_${VERSION}.tar.gz && \
-    cd boost_{VERSION} && \
+    cd boost_${VERSION} && \
     ./bootstrap.sh --prefix=/usr/local && \
     ./b2 install && \
     cd ../.. && \

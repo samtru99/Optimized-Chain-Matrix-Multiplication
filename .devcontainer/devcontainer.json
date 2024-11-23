@@ -1,7 +1,7 @@
 {
 
     "name": "Matrix Mult",
-    "image": "nvidia/cuda:12.6.1-devel-ubuntu20.04",
+    "image": "cuda_dev",
     "runArgs": [
         "--gpus", "1" 
     ],
@@ -18,5 +18,4 @@
             ]
         }
     },
-    "postCreateCommand": "apt update && apt-get install git",
 }
