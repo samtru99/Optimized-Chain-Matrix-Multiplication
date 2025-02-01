@@ -4,12 +4,19 @@
 #include <tuple>
 #include <vector>
 #include <unordered_map>
-//#include <cuda_runtime.h>
-//#include <device_launch_parameters.h>
-#include <string.h>
 #include "sequence_gpu.h"
+/*
+    Boost Libraries
+*/
+#include<boost/property_tree/ptree.hpp>
+using boost::property_tree::ptree;
+#include<boost/property_tree/xml_parser.hpp>
+#include<boost/foreach.hpp>
 
-void setValues(matrix *x,int value)
+
+
+//Could use multiple threads to fill up each matrix
+void setValues(matrix *x,int value) 
 {
     int row = std::get<0>(x->dimension);
     int col = std::get<1>(x->dimension);
@@ -30,58 +37,30 @@ void setValues(matrix *x,int value)
 
 int main()
 {
-    
-    //Generate Matrices
-    
-    matrix *A1 = new matrix;
-    matrix *A2 = new matrix;
-    matrix *A3 = new matrix;
-    matrix *A4 = new matrix;
-
-    A1->name = "A1";
-    A2->name = "A2";
-    A3->name = "A3";
-    A4->name = "A4";
-
-    //matrix *A5 = new matrix;
-    /*
-    //For odd number 
-    */
-    // A1->dimension = std::make_tuple(4,10);
-    // A2->dimension = std::make_tuple(10,3);
-    // A3->dimension = std::make_tuple(3,12);
-    // A4->dimension = std::make_tuple(12,20);
-    // A5->dimension = std::make_tuple(20,7);
-    
-
-    //For even number 
-    A1->dimension = std::make_tuple(3,2);
-    A2->dimension = std::make_tuple(2,4);
-    A3->dimension = std::make_tuple(4,2);
-    A4->dimension = std::make_tuple(2,5);
-    setValues(A1, 1);
-    setValues(A2, 2);
-    setValues(A3, 3);
-    setValues(A4, 4);
-   // setValues(A5, 5);
-    
-   
-
-    std::unordered_map<char, matrix*> dict;
-    dict['1'] = A1;
-    dict['2'] = A2;
-    dict['3'] = A3;
-    dict['4'] = A4;
-   // dict['5'] = A5;
-
+    ptree pt;
+    read_xml("./config.xml", pt);
     std::vector<matrix> list_matrixes;
-    list_matrixes.push_back(*A1);
-    list_matrixes.push_back(*A2);
-    list_matrixes.push_back(*A3);
-    list_matrixes.push_back(*A4);
-   // list_matrixes.push_back(*A5);
-
-
+    std::unordered_map<char, matrix*> dict;
+    int counter = 1;
+    
+    BOOST_FOREACH(ptree::value_type & child, pt.get_child("matrixList"))
+    {
+        std::string name = child.second.get<std::string>("<xmlattr>.name");
+        int row = child.second.get<int>("<xmlattr>.row");
+        int column = child.second.get<int>("<xmlattr>.column");
+        int value = child.second.get<int>("<xmlattr>.value");
+        
+        matrix *temp = new matrix;
+        temp->name = name;
+        temp->dimension = std::make_tuple(row,column);
+        
+        setValues(temp, value);
+        char charValue = '0' + counter;
+        dict[charValue] = temp;
+        counter++;
+        list_matrixes.push_back(*temp);
+    }
+    assert(list_matrixes[0].name == "A1");
     /*
         Create S table and initalize diagonal to zeros
     */
